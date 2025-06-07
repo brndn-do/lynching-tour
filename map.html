@@ -12,10 +12,7 @@
       .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
   </head>
-  <body class="flex items-center justify-center bg-black min-h-screen">
-    <div class="mx-auto aspect-[1/2] max-h-[95vh] my-8 rounded-3xl overflow-hidden bg-white relative flex flex-col">
-      <!-- scrollable content -->
-      <div class="h-full overflow-y-auto no-scrollbar">
+  <body class="flex flex-col items-center justify-center">
         <!-- Header -->
         <header class="mb-4 flex justify-between items-center p-4">
           <h1 class="text-2xl font-semibold">Lynching Exhibit</h1>
@@ -36,8 +33,6 @@
         <div class="px-4 mt-6 mb-4 text-center">
           <a href="reflect.html" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Reflect ✦</a>
         </div>
-
-      </div>
 
       <!-- Detail modal inside wrapper -->
       <div id="modal" class="dialog absolute inset-0 bg-black/60 hidden flex items-center justify-center p-4">

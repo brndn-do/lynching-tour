@@ -1,30 +1,41 @@
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reflect | Lynching Exhibit</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="flex items-center justify-center bg-black min-h-screen">
-  <!-- Phone‐frame wrapper -->
-  <div class="mx-auto aspect-[1/2] max-h-[95vh] rounded-3xl overflow-hidden bg-white relative flex items-center justify-center px-4">
-    <main class="max-w-md text-center">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reflect | Lynching Exhibit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="flex flex-col items-center justify-center p-4 min-h-screen text-center">
+    <div class="w-full max-w-md">
       <h1 class="text-2xl font-semibold mb-4">Reflection</h1>
-      <p class="mb-6">Thank you! Take a moment to reflect on how sharing shapes memory and justice.</p>
+      <p class="mb-6">
+        Thank you! Take a moment to reflect on how sharing shapes memory and
+        justice.
+      </p>
       <ul class="space-y-3 mb-8">
-        <li><a href="bibliography.html" class="text-blue-600 underline">View full bibliography →</a></li>
+        <li>
+          <a href="bibliography.html" class="text-blue-600 underline"
+            >View full bibliography →</a
+          >
+        </li>
       </ul>
-      <a href="index.html" class="inline-block bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Restart Exhibit</a>
-    </main>
-  </div>
-
-  <script>
-    document.getElementById('clearBtn')?.addEventListener('click', () => {
-      if (confirm('This will delete all local likes, comments, and remixes. Continue?')) {
-        localStorage.clear();
-        alert('Local data cleared.');
-      }
-    });
-  </script>
-</body>
+      <a
+        href="index.html"
+        class="inline-block bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+        >Restart Exhibit</a
+      >
+    </div>
+    <script>
+      document.getElementById("clearBtn")?.addEventListener("click", () => {
+        if (
+          confirm(
+            "This will delete all local likes, comments, and remixes. Continue?"
+          )
+        ) {
+          localStorage.clear();
+          alert("Local data cleared.");
+        }
+      });
+    </script>
+  </body>
 </html>
