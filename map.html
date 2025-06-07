@@ -22,14 +22,15 @@
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
+      .dialog {
+        z-index: 1000;
+      }
     </style>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    ></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   </head>
 
   <body
@@ -52,7 +53,7 @@
         id="mapPlaceholder"
         class="rounded flex items-center justify-center mb-6 mx-4"
       >
-        <div id="map" class="w-full h-80 rounded mb-6 mx-4"></div>
+        <div id="map" class="w-full h-64 rounded mb-6 mx-4"></div>
       </div>
 
       <!-- Stops list -->
