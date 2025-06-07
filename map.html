@@ -198,6 +198,13 @@
           listEl.appendChild(li);
         });
 
+        function lockScroll() {
+          document.body.classList.add("overflow-hidden");
+        }
+        function unlockScroll() {
+          document.body.classList.remove("overflow-hidden");
+        }
+
         /***** Modal helpers *****/
         function openModal(id) {
           current = EVENTS.find((e) => e.id === id);
@@ -212,12 +219,16 @@
           likeBtn.innerHTML = `${heart} <span id=\"likeCount\">${likes[id]}</span>`;
           commentCountEl.textContent = comments[id].length;
           modal.classList.remove("hidden");
+          modal.classList.remove("hidden");
+          lockScroll();
         }
         function closeModal() {
           modal.classList.add("hidden");
+          if (commentDialog.classList.contains("hidden")) unlockScroll();
         }
         function closeComments() {
           commentDialog.classList.add("hidden");
+          if (modal.classList.contains("hidden")) unlockScroll();
         }
 
         likeBtn.onclick = () => {
@@ -244,6 +255,7 @@
         commentBtn.onclick = () => {
           renderComments();
           commentDialog.classList.remove("hidden");
+          lockScroll();
         };
         function renderComments() {
           const arr = comments[current.id];
@@ -267,6 +279,23 @@
 
         closeModalBtn.onclick = closeModal;
         closeCommentBtn.onclick = closeComments;
+        window.onkeydown = (e) => {
+          if (e.key === "Escape") {
+            closeModal();
+            closeComments();
+          }
+        };
+
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+        commentDialog.addEventListener("click", (e) => {
+          if (e.target === commentDialog) closeComments();
+        });
+
+        closeModalBtn.onclick = closeModal;
+        closeCommentBtn.onclick = closeComments;
+
         window.onkeydown = (e) => {
           if (e.key === "Escape") {
             closeModal();
