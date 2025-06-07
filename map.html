@@ -1,0 +1,129 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lynching Exhibit Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      #mapPlaceholder { height: 300px; }
+      .dialog { backdrop-filter: blur(4px); }
+      /* Hide scrollbars */
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+  </head>
+  <body class="flex items-center justify-center bg-black min-h-screen">
+    <div class="mx-auto aspect-[1/2] max-h-[95vh] my-8 rounded-3xl overflow-hidden bg-white relative flex flex-col h-full">
+      <!-- scrollable content -->
+      <div class="h-full overflow-y-auto no-scrollbar">
+        <!-- Header -->
+        <header class="mb-4 flex justify-between items-center p-4">
+          <h1 class="text-2xl font-semibold">Lynching Exhibit</h1>
+  
+        </header>
+
+        <!-- Map placeholder -->
+        <div id="mapPlaceholder" class="bg-gray-300 rounded flex items-center justify-center mb-6 mx-4">
+          <span class="text-gray-600">[Map / Leaflet placeholder]</span>
+        </div>
+
+        <!-- Stops list -->
+        <section class="px-4">
+          <h2 class="text-xl font-medium mb-2">Postcard Stops</h2>
+          <ul id="eventList" class="space-y-4"></ul>
+        </section>
+        
+        <div class="px-4 mt-6 mb-4 text-center">
+          <a href="reflect.html" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Reflect ✦</a>
+        </div>
+
+      </div>
+
+      <!-- Detail modal inside wrapper -->
+      <div id="modal" class="dialog absolute inset-0 bg-black/60 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-[100%] overflow-y-auto rounded-3xl p-4 no-scrollbar relative">
+          <button id="closeModal" class="text-gray-500 hover:text-black absolute top-2 right-2 text-xl">✕</button>
+          <h3 id="eventTitle" class="text-lg font-semibold mb-2"></h3>
+          <img id="eventImage" class="w-full rounded mb-2 object-contain max-h-95" />
+          <p id="eventCaption" class="italic text-sm mb-4"></p>
+          <div class="flex items-center justify-between mb-4 text-gray-700 text-lg">
+            <button id="likeBtn" class="flex items-center gap-1">🤍 <span id="likeCount">0</span></button>
+            <button id="commentBtn" class="flex items-center gap-1">💬 <span id="commentCount">0</span></button>
+            <button id="shareBtn" class="flex items-center gap-1 text-blue-600">🔄 Share</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comment dialog inside wrapper -->
+      <div id="commentDialog" class="dialog absolute inset-0 bg-black/60 hidden flex items-center justify-center p-4"">
+        <div class="bg-white max-w-lg w-5/6 max-h-[85vh] overflow-y-auto rounded-4xl p-4 no-scrollbar relative">
+          <button id="closeComment" class="text-gray-500 hover:text-black absolute top-2 right-2 text-xl">✕</button>
+          <h4 class="font-medium mb-2">Comments</h4>
+          <div id="commentList" class="space-y-2 max-h-40 overflow-y-auto mb-3 text-sm no-scrollbar"></div>
+          <textarea id="commentText" rows="3" class="w-full border p-2 mb-3" placeholder="Add a comment..."></textarea>
+          <button id="postComment" class="bg-black text-white px-4 py-2 rounded w-full">Post</button>
+        </div>
+      </div>
+
+      <script>
+        /***** DATASET *****/
+        const EVENTS = [
+          { id: "waco1916", year: 1916, title: "Jesse Washington Lynching • Waco, TX", img: "./assets/jesse_washington.png", caption: "This is the barbecue we had last night." },
+          { id: "duluth1920", year: 1920, title: "Duluth Lynchings • Duluth, MN", img: "./assets/duluth.jpg", caption: "One less problem for our city." },
+          { id: "marion1930", year: 1930, title: "Shipp & Smith Lynching • Marion, IN", img: "./assets/shipp_smith.jpg", caption: "They got what they deserved." },
+          { id: "marietta1915", year: 1915, title: "Leo Frank Lynching • Marietta, GA", img: "./assets/leo_frank.png", caption: "He got what he was asking for." }
+        ];
+
+        /***** Transient state *****/
+        const likes = {}, comments = {}, likedState = {};
+
+        /***** DOM refs *****/
+        const listEl = document.getElementById("eventList"), modal = document.getElementById("modal"), closeModalBtn = document.getElementById("closeModal"), titleEl = document.getElementById("eventTitle"), imgEl = document.getElementById("eventImage"), captionEl = document.getElementById("eventCaption"), likeBtn = document.getElementById("likeBtn"), shareBtn = document.getElementById("shareBtn"), commentBtn = document.getElementById("commentBtn"), commentCountEl = document.getElementById("commentCount"), commentDialog = document.getElementById("commentDialog"), closeCommentBtn = document.getElementById("closeComment"), commentList = document.getElementById("commentList"), commentText = document.getElementById("commentText"), postCommentBtn = document.getElementById("postComment");
+        let current = null;
+
+        /***** Render stops *****/
+        EVENTS.forEach(ev => { const li = document.createElement("li"); li.className = "bg-white shadow p-4 rounded cursor-pointer hover:bg-gray-50"; li.textContent = `${ev.title} (tap)`; li.onclick = () => openModal(ev.id); listEl.appendChild(li); });
+
+        /***** Modal helpers *****/
+        function openModal(id) {
+          current = EVENTS.find(e => e.id === id);
+          titleEl.textContent = `${current.title} (${current.year})`;
+          imgEl.src = current.img;
+          captionEl.textContent = current.caption;
+          if (likes[id]===undefined) likes[id] = Math.round(Math.random() * 25);
+          if (!comments[id]) comments[id]=[];
+          if (likedState[id]===undefined) likedState[id]=false;
+          const heart = likedState[id] ? "❤️" : "🤍";
+          likeBtn.innerHTML = `${heart} <span id=\"likeCount\">${likes[id]}</span>`;
+          commentCountEl.textContent = comments[id].length;
+          modal.classList.remove("hidden");
+        }
+        function closeModal(){modal.classList.add("hidden");}
+        function closeComments(){commentDialog.classList.add("hidden");}
+
+        likeBtn.onclick = () => {
+          const id=current.id;
+          if(!likedState[id]){likes[id]++;likedState[id]=true;} else{likes[id]--;likedState[id]=false;}
+          const heart=likedState[id]?"❤️":"🤍";
+          likeBtn.innerHTML=`${heart} <span id=\"likeCount\">${likes[id]}</span>`;
+        };
+
+        shareBtn.onclick=()=>{
+          const shareURL=`${window.location.origin}${window.location.pathname}?event=${current.id}`;
+          navigator.clipboard.writeText(shareURL).then(()=>alert("Link copied to clipboard!")).catch(()=>alert("Failed to copy link."));
+        };
+
+        commentBtn.onclick=()=>{renderComments();commentDialog.classList.remove("hidden");};
+        function renderComments(){
+          const arr=comments[current.id];commentList.innerHTML=arr.length?"":'<p class=\"text-gray-500\">No comments yet.</p>';
+          arr.forEach(c=>{const p=document.createElement("p");p.textContent=`• ${c}`;commentList.appendChild(p);});
+        }
+        postCommentBtn.onclick=()=>{const txt=commentText.value.trim();if(!txt)return;comments[current.id].push(txt);commentText.value="";renderComments();commentCountEl.textContent=comments[current.id].length;};
+
+        closeModalBtn.onclick=closeModal;
+        closeCommentBtn.onclick=closeComments;
+        window.onkeydown=e=>{if(e.key==="Escape"){closeModal();closeComments();}};
+      </script>
+    </div>
+  </body>
+</html>
