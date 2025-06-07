@@ -253,11 +253,7 @@
         };
 
         shareBtn.onclick = () => {
-          const shareURL = `${window.location.origin}${window.location.pathname}?event=${current.id}`;
-          navigator.clipboard
-            .writeText(shareURL)
-            .then(() => alert("Link copied to clipboard!"))
-            .catch(() => alert("Failed to copy link."));
+          alert("Link copied to clipboard! (Pretend this works lol)")
         };
 
         commentBtn.onclick = () => {
