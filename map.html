@@ -23,6 +23,13 @@
         display: none;
       }
     </style>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
   </head>
 
   <body
@@ -43,9 +50,9 @@
       <!-- Map placeholder -->
       <div
         id="mapPlaceholder"
-        class="bg-gray-300 rounded flex items-center justify-center mb-6 mx-4"
+        class="rounded flex items-center justify-center mb-6 mx-4"
       >
-        <span class="text-gray-600">[Map / Leaflet placeholder]</span>
+        <div id="map" class="w-full h-80 rounded mb-6 mx-4"></div>
       </div>
 
       <!-- Stops list -->
@@ -193,7 +200,7 @@
           const li = document.createElement("li");
           li.className =
             "bg-white shadow p-4 rounded cursor-pointer hover:bg-gray-50";
-          li.textContent = `${ev.title} (tap)`;
+          li.textContent = `${ev.title}`;
           li.onclick = () => openModal(ev.id);
           listEl.appendChild(li);
         });
@@ -304,5 +311,45 @@
         };
       </script>
     </div>
+    <script>
+      // 1) Create the map centered on the U.S.
+      const map = L.map("map").setView([39.5, -98.35], 4);
+
+      // 2) Add an OpenStreetMap tile layer
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
+
+      // 3) Define your four lynching sites with coordinates
+      const stops = [
+        {
+          title: "Jesse Washington • Waco, TX",
+          coords: [31.5493, -97.1467],
+        },
+        {
+          title: "Duluth Lynchings • Duluth, MN",
+          coords: [46.7867, -92.1005],
+        },
+        {
+          title: "Shipp & Smith • Marion, IN",
+          coords: [40.5497, -85.6602],
+        },
+        {
+          title: "Leo Frank • Marietta, GA",
+          coords: [33.9526, -84.5499],
+        },
+      ];
+
+      // 4) Loop and drop a marker for each
+      stops.forEach((stop) => {
+        L.marker(stop.coords)
+          .addTo(map)
+          .bindPopup(`<strong>${stop.title}</strong>`)
+          .on("click", () => {
+            // Optional: sync your modal-opening logic:
+            // openModal(stop.id);
+          });
+      });
+    </script>
   </body>
 </html>
