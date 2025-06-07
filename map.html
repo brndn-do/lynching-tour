@@ -35,7 +35,7 @@
         </div>
 
       <!-- Detail modal inside wrapper -->
-      <div id="modal" class="dialog absolute inset-0 bg-black/60 hidden flex items-center justify-center p-4">
+      <div id="modal" class="dialog fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4">
         <div class="bg-white w-[100%] overflow-y-auto rounded-3xl p-4 no-scrollbar relative">
           <button id="closeModal" class="text-gray-500 hover:text-black absolute top-2 right-2 text-xl">✕</button>
           <h3 id="eventTitle" class="text-lg font-semibold mb-2"></h3>
@@ -50,8 +50,8 @@
       </div>
 
       <!-- Comment dialog inside wrapper -->
-      <div id="commentDialog" class="dialog absolute inset-0 bg-black/60 hidden flex items-center justify-center p-4"">
-        <div class="bg-white max-w-lg w-5/6 max-h-[85vh] overflow-y-auto rounded-4xl p-4 no-scrollbar relative">
+      <div id="commentDialog" class="dialog fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-5/6 max-h-[85vh] overflow-y-auto rounded-3xl p-4 no-scrollbar relative">
           <button id="closeComment" class="text-gray-500 hover:text-black absolute top-2 right-2 text-xl">✕</button>
           <h4 class="font-medium mb-2">Comments</h4>
           <div id="commentList" class="space-y-2 max-h-40 overflow-y-auto mb-3 text-sm no-scrollbar"></div>
