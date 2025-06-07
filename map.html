@@ -12,7 +12,15 @@
       .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
   </head>
-  <body class="flex flex-col items-center justify-center">
+    <body
+    class="flex flex-col p-4 justify-center items-center text-center"
+    style="
+      /* Fallback for older browsers */
+      min-height: 100vh;
+      /* Use dynamic viewport height when supported */
+      min-height: 100dvh;
+    "
+  >
         <!-- Header -->
         <header class="mb-4 flex justify-between items-center p-4">
           <h1 class="text-2xl font-semibold">Lynching Exhibit</h1>
