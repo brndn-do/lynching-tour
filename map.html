@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -5,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Lynching Exhibit Tour</title>
+    <title>Virtual Lynching Tour</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       #mapPlaceholder {
@@ -144,6 +145,13 @@
         /***** DATASET *****/
         const EVENTS = [
           {
+            id: "marietta1915",
+            year: 1915,
+            title: "Leo Frank Lynching • Marietta, GA",
+            img: "./assets/leo_frank.png",
+            caption: "At last we’ve cleaned out that dirty Jew",
+          },
+          {
             id: "waco1916",
             year: 1916,
             title: "Jesse Washington Lynching • Waco, TX",
@@ -164,19 +172,17 @@
             img: "./assets/shipp_smith.jpg",
             caption: "They got what they deserved.",
           },
-          {
-            id: "marietta1915",
-            year: 1915,
-            title: "Leo Frank Lynching • Marietta, GA",
-            img: "./assets/leo_frank.png",
-            caption: "At last we’ve cleaned out that dirty Jew",
-          },
         ];
 
-        /***** Transient state *****/
-        const likes = {},
-          comments = {},
-          likedState = {};
+        /***** Fixed like counts based on historical reach *****/
+        const likes = {
+          marietta1915: 255,
+          waco1916: 1312,
+          duluth1920: 867,
+          marion1930: 2124
+        };
+        const comments = {};
+        const likedState = {};
 
         /***** DOM refs *****/
         const listEl = document.getElementById("eventList"),
@@ -219,14 +225,11 @@
           titleEl.textContent = `${current.title} (${current.year})`;
           imgEl.src = current.img;
           captionEl.textContent = current.caption;
-          if (likes[id] === undefined)
-            likes[id] = Math.round(Math.random() * 25);
           if (!comments[id]) comments[id] = [];
           if (likedState[id] === undefined) likedState[id] = false;
           const heart = likedState[id] ? "❤️" : "🤍";
           likeBtn.innerHTML = `${heart} <span id=\"likeCount\">${likes[id]}</span>`;
           commentCountEl.textContent = comments[id].length;
-          modal.classList.remove("hidden");
           modal.classList.remove("hidden");
           lockScroll();
         }
@@ -296,16 +299,6 @@
         commentDialog.addEventListener("click", (e) => {
           if (e.target === commentDialog) closeComments();
         });
-
-        closeModalBtn.onclick = closeModal;
-        closeCommentBtn.onclick = closeComments;
-
-        window.onkeydown = (e) => {
-          if (e.key === "Escape") {
-            closeModal();
-            closeComments();
-          }
-        };
       </script>
     </div>
     <script>
@@ -341,11 +334,7 @@
       stops.forEach((stop) => {
         L.marker(stop.coords)
           .addTo(map)
-          .bindPopup(`<strong>${stop.title}</strong>`)
-          .on("click", () => {
-            // Optional: sync your modal-opening logic:
-            // openModal(stop.id);
-          });
+          .bindPopup(`<strong>${stop.title}</strong>`);
       });
     </script>
   </body>
