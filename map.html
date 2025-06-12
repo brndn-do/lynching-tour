@@ -194,7 +194,7 @@
         const contexts = {
           marietta1915: `
               <h5 class="font-medium">Leo Frank (1915, Georgia)</h5>
-              <p>Leo Frank was a Jewish factory manager in Atlanta who was wrongly convicted of killing thirteen-year-old Mary Phagan amid intense anti-Semitism. In August 1915, a white mob broke him out of prison and hanged him from a tree, an act that horrified people across the country. Frank’s lynching showed how biased journalism and a one-sided trial could lead to deadly violence. Outrage over his murder helped spark the creation of the Anti-Defamation League to fight hatred.</p>
+<p>In April 1913, factory superintendent Leo Frank was arrested for the murder of thirteen-year-old Mary Phagan. His trial took place amid a frenzy of sensational press coverage and pervasive anti-Semitism, culminating in a guilty verdict by an all-white jury. Governor John Slaton’s 1915 commutation of Frank’s death sentence sparked violent backlash: a group calling itself the “Knights of Mary Phagan” kidnapped him from prison, lynched him in Marietta, and displayed his body to an unruly crowd of nearly 3,000 spectators. This episode exposed how deep prejudice could override legal protections and public order. In its wake, Georgians wrestled with questions of justice and memory, the case inspired the founding of the Anti-Defamation League, and, decades later, the state formally pardoned Frank to acknowledge its failure to protect him.<sup>1</sup></p>
               <p class="text-xs italic mt-2">Leonard Dinnerstein, “Leo Frank Case,” New Georgia Encyclopedia, last modified August 11, 2020, https://www.georgiaencyclopedia.org/articles/history-archaeology/leo-frank-case/.</p>
             `,
           waco1916: `
@@ -204,7 +204,7 @@
             `,
           duluth1920: `
               <h5 class="font-medium">Duluth Lynchings (1920, Minnesota)</h5>
-              <p>In June 1920, a white couple accused three Black circus workers of robbing them and raping the woman, Irene Tusken. A mob of about 10,000 people stormed Duluth’s jail and hanged Elias Clayton, Elmer Jackson, and Isaac McGhie. No one was punished for their murders—instead, other Black men were even charged on the same false claims—showing how deep racism ran, even in the North. But public outrage forced the governor to send in the National Guard and led Minnesota to pass the first statewide anti-lynching law in April 1921. Decades later, Duluth residents placed headstones on the victims’ graves, dedicated a monument in 2003, and began an annual Day of Remembrance.</p>
+              <p>In June 1920, a white couple accused three Black circus workers of robbing them and raping the woman, Irene Tusken. A mob of about 10,000 people stormed Duluth’s jail and hanged Elias Clayton, Elmer Jackson, and Isaac McGhie. No one was punished for their murders—instead, other Black men were even charged on the same false claims—showing how deep racism was present even in the North. But public outrage forced the governor to send in the National Guard and led Minnesota to pass the first statewide anti-lynching law in April 1921. Decades later, Duluth residents placed headstones on the victims’ graves, dedicated a monument in 2003, and began an annual Day of Remembrance.</p>
               <p class="text-xs italic mt-2">"Duluth Lynchings," <em>MNHSA MNopedia</em>, accessed June 11, 2025, https://www3.mnhs.org/mnopedia/search/index/event/duluth-lynchings.</p>
             `,
           marion1930: `
@@ -356,6 +356,28 @@
               document.body.classList.remove("overflow-hidden");
             })
         );
+
+        // Close any open dialog when clicking outside its content
+        document.querySelectorAll(".dialog").forEach((dialog) => {
+          dialog.addEventListener("click", (e) => {
+            if (e.target === dialog) {
+              dialog.classList.add("hidden");
+              document.body.classList.remove("overflow-hidden");
+            }
+          });
+        });
+
+        // Also close with Escape key
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            document.querySelectorAll(".dialog").forEach((dialog) => {
+              if (!dialog.classList.contains("hidden")) {
+                dialog.classList.add("hidden");
+              }
+            });
+            document.body.classList.remove("overflow-hidden");
+          }
+        });
 
         // Leaflet map init
         const map = L.map("map").setView([41, -95], 4);
