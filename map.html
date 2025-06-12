@@ -14,17 +14,14 @@
       }
       .dialog {
         backdrop-filter: blur(4px);
+        z-index: 1000;
       }
-      /* Hide scrollbars */
       .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
       .no-scrollbar::-webkit-scrollbar {
         display: none;
-      }
-      .dialog {
-        z-index: 1000;
       }
     </style>
     <link
@@ -33,15 +30,9 @@
     />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   </head>
-
   <body
     class="flex flex-col p-4 justify-center items-center text-center"
-    style="
-      /* Fallback for older browsers */
-      min-height: 100vh;
-      /* Use dynamic viewport height when supported */
-      min-height: 100dvh;
-    "
+    style="min-height: 100dvh"
   >
     <div class="w-full max-w-md">
       <!-- Header -->
@@ -54,13 +45,13 @@
         id="mapPlaceholder"
         class="rounded flex items-center justify-center mb-6 mx-4"
       >
-        <div id="map" class="w-full h-64 rounded mb-6 mx-4"></div>
+        <div id="map" class="w-full h-64 rounded"></div>
       </div>
 
       <!-- Stops list -->
       <section class="px-4">
         <h2 class="text-xl font-medium mb-2">Postcard Stops</h2>
-        <ul id="eventList" class="space-y-4"></ul>
+        <ul id="eventList" class="space-y-4 list-none"></ul>
       </section>
 
       <div class="px-4 mt-6 mb-4 text-center">
@@ -71,13 +62,13 @@
         >
       </div>
 
-      <!-- Detail modal inside wrapper -->
+      <!-- Detail modal -->
       <div
         id="modal"
         class="dialog fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4"
       >
         <div
-          class="w-full max-w-md bg-white w-[100%] overflow-y-auto rounded-3xl p-4 no-scrollbar relative"
+          class="w-full max-w-md bg-white overflow-y-auto rounded-3xl p-4 no-scrollbar relative"
         >
           <button
             id="closeModal"
@@ -103,11 +94,14 @@
             <button id="shareBtn" class="flex items-center gap-1 text-blue-600">
               🔄 Share
             </button>
+            <button id="infoBtn" class="flex items-center gap-1 text-blue-600">
+              ℹ️ Info
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Comment dialog inside wrapper -->
+      <!-- Comment dialog -->
       <div
         id="commentDialog"
         class="dialog fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4"
@@ -128,7 +122,7 @@
           ></div>
           <textarea
             id="commentText"
-            rows="3"
+            rows="1"
             class="w-full border p-2 mb-3"
             placeholder="Add a comment..."
           ></textarea>
@@ -141,201 +135,254 @@
         </div>
       </div>
 
+      <!-- Context dialog -->
+      <div
+        id="contextDialog"
+        class="dialog fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4"
+      >
+        <div
+          class="bg-white max-w-lg w-5/6 max-h-[85vh] overflow-y-auto rounded-3xl p-4 no-scrollbar relative"
+        >
+          <button
+            id="closeContext"
+            class="text-gray-500 hover:text-black absolute top-2 right-2 text-xl"
+          >
+            ✕
+          </button>
+          <h4 id="contextTitle" class="text-xl font-semibold mb-4">
+            Context & Impact
+          </h4>
+          <div id="contextText" class="space-y-4 text-center text-sm"></div>
+        </div>
+      </div>
+
       <script>
-        /***** DATASET *****/
         const EVENTS = [
           {
             id: "marietta1915",
+            title: "Leo Frank Lynching",
             year: 1915,
-            title: "Leo Frank Lynching • Marietta, GA",
-            img: "./assets/leo_frank.png",
             caption: "At last we’ve cleaned out that dirty Jew",
           },
           {
             id: "waco1916",
+            title: "Jesse Washington Lynching",
             year: 1916,
-            title: "Jesse Washington Lynching • Waco, TX",
-            img: "./assets/jesse_washington.png",
             caption: "This is the barbecue we had last night.",
           },
           {
             id: "duluth1920",
+            title: "Duluth Lynchings",
             year: 1920,
-            title: "Duluth Lynchings • Duluth, MN",
-            img: "./assets/duluth.jpg",
             caption: "One less problem for our city.",
           },
           {
             id: "marion1930",
+            title: "Shipp & Smith Lynching",
             year: 1930,
-            title: "Shipp & Smith Lynching • Marion, IN",
-            img: "./assets/shipp_smith.jpg",
             caption: "They got what they deserved.",
           },
         ];
-
-        /***** Fixed like counts based on historical reach *****/
         const likes = {
-          marietta1915: 255,
-          waco1916: 1312,
-          duluth1920: 867,
-          marion1930: 2124
+          marietta1915: 2551,
+          waco1916: 13122,
+          duluth1920: 8676,
+          marion1930: 21240,
         };
-        const comments = {};
-        const likedState = {};
+        const comments = {},
+          likedState = {};
+        const contexts = {
+          marietta1915: `
+              <h5 class="font-medium">Leo Frank (1915, Georgia)</h5>
+              <p>Leo Frank was a Jewish factory manager in Atlanta who was wrongly convicted of killing thirteen-year-old Mary Phagan amid intense anti-Semitism. In August 1915, a white mob broke him out of prison and hanged him from a tree, an act that horrified people across the country. Frank’s lynching showed how biased journalism and a one-sided trial could lead to deadly violence. Outrage over his murder helped spark the creation of the Anti-Defamation League to fight hatred.</p>
+              <p class="text-xs italic mt-2">Leonard Dinnerstein, <em>The Leo Frank Case</em> (New Haven: Yale University Press, 1978).</p>
+            `,
+          waco1916: `
+              <h5 class="font-medium">Jesse Washington (1916, Texas)</h5>
+              <p>After being accused of raping and killing a white woman, seventeen-year-old Jesse Washington was brought back to Waco on May 15, 1916. A mob of 15,000 to 20,000 people dragged him from the courthouse, beat him, and burned him alive on a pyre of boxes soaked in fuel. Photographers captured and sold hundreds of postcards of the event, and images of Washington’s charred body were mailed across the nation, prompting public outrage. The NAACP used these graphic photos to fuel its first anti-lynching campaigns and push for federal legislation.</p>
+              <p class="text-xs italic mt-2">"Jesse Washington Lynching," <em>Waco History</em>, accessed June 11, 2025, https://wacohistory.org/items/show/55.</p>
+            `,
+          duluth1920: `
+              <h5 class="font-medium">Duluth Lynchings (1920, Minnesota)</h5>
+              <p>In June 1920, a white couple accused three Black circus workers of robbing them and raping the woman, Irene Tusken. A mob of about 10,000 people stormed Duluth’s jail and hanged Elias Clayton, Elmer Jackson, and Isaac McGhie. No one was punished for their murders—instead, other Black men were even charged on the same false claims—showing how deep racism ran, even in the North. But public outrage forced the governor to send in the National Guard and led Minnesota to pass the first statewide anti-lynching law in April 1921. Decades later, Duluth residents placed headstones on the victims’ graves, dedicated a monument in 2003, and began an annual Day of Remembrance.</p>
+              <p class="text-xs italic mt-2">"Duluth Lynchings," <em>MNHSA MNopedia</em>, accessed June 11, 2025, https://www3.mnhs.org/mnopedia/search/index/event/duluth-lynchings.</p>
+            `,
+          marion1930: `
+              <h5 class="font-medium">Marion Lynching (1930, Indiana)</h5>
+              <p>In August 1930, a white mob in Marion, Indiana, stormed Grant County jail, dragged out Thomas Shipp and Abram Smith—accused without real evidence—and lynched them before thousands. Sixteen-year-old James Cameron was spared and later served four years in prison. The NAACP’s investigation brought national attention, a photograph of the hanging inspired “Strange Fruit,” and Cameron’s 1993 pardon and founding of America’s Black Holocaust Museum show how one act of terror can drive long-term justice and remembrance.</p>
+<p class="text-xs italic mt-2">
+  Equal Justice Initiative, “Thousands Lynch Two Black Men in Marion, Indiana,” <em>National Memorial for Peace and Justice Calendar</em>, accessed June 11, 2025, https://calendar.eji.org/racial-injustice/aug/07.
+</p>
+            `,
+        };
 
-        /***** DOM refs *****/
+        const presetComments = {
+          marietta1915: [
+            "LOL justice at last",
+            "TBH the crowd was p quiet, eerie vibes."
+          ],
+          waco1916: [
+            "yo that was savage—crowd was hype",
+            "I flipped dozens of those postcards today",
+            "He legit begged for mercy, crowd was like ‘nah fam, we good.’",
+            "NAACP talking trash, but they never felt the vibe here.",
+          ],
+          duluth1920: [
+            "Never thought Duluth would pull this off like the south.",
+            "LOL lawmakers trying to fix it now, too little too late.",
+            "best event of the year.",
+          ],
+          marion1930: [
+            "lmao",
+            "Watching them two swing was dark, ngl.",
+            "one dude survived right? too bad",
+            "wild stuff",
+            "that was satisfying"
+          ],
+        };
+
+        // DOM refs
         const listEl = document.getElementById("eventList"),
           modal = document.getElementById("modal"),
-          closeModalBtn = document.getElementById("closeModal"),
+          commentDialog = document.getElementById("commentDialog"),
+          contextDialog = document.getElementById("contextDialog"),
+          closeModal = document.getElementById("closeModal"),
+          closeComment = document.getElementById("closeComment"),
+          closeContext = document.getElementById("closeContext"),
           titleEl = document.getElementById("eventTitle"),
           imgEl = document.getElementById("eventImage"),
           captionEl = document.getElementById("eventCaption"),
           likeBtn = document.getElementById("likeBtn"),
-          shareBtn = document.getElementById("shareBtn"),
           commentBtn = document.getElementById("commentBtn"),
-          commentCountEl = document.getElementById("commentCount"),
-          commentDialog = document.getElementById("commentDialog"),
-          closeCommentBtn = document.getElementById("closeComment"),
+          infoBtn = document.getElementById("infoBtn"),
+          shareBtn = document.getElementById("shareBtn"),
           commentList = document.getElementById("commentList"),
           commentText = document.getElementById("commentText"),
-          postCommentBtn = document.getElementById("postComment");
+          postComment = document.getElementById("postComment"),
+          contextText = document.getElementById("contextText"),
+          contextTitle = document.getElementById("contextTitle");
         let current = null;
 
-        /***** Render stops *****/
+        // Render list
         EVENTS.forEach((ev) => {
           const li = document.createElement("li");
           li.className =
             "bg-white shadow p-4 rounded cursor-pointer hover:bg-gray-50";
-          li.textContent = `${ev.title}`;
+          li.textContent = `${ev.title} • ${ev.year}`;
           li.onclick = () => openModal(ev.id);
           listEl.appendChild(li);
         });
 
-        function lockScroll() {
-          document.body.classList.add("overflow-hidden");
-        }
-        function unlockScroll() {
-          document.body.classList.remove("overflow-hidden");
-        }
-
-        /***** Modal helpers *****/
         function openModal(id) {
-          current = EVENTS.find((e) => e.id === id);
-          titleEl.textContent = `${current.title} (${current.year})`;
-          imgEl.src = current.img;
-          captionEl.textContent = current.caption;
+          current = id;
+          const ev = EVENTS.find((e) => e.id === id);
+          titleEl.textContent = `${ev.title} (${ev.year})`;
+          imgEl.src = `./assets/${id}.jpg`;
+          imgEl.onerror = () => {
+            imgEl.onerror = null;
+            imgEl.src = `./assets/${id}.png`;
+          };
+          captionEl.textContent = ev.caption;
           if (!comments[id]) comments[id] = [];
-          if (likedState[id] === undefined) likedState[id] = false;
-          const heart = likedState[id] ? "❤️" : "🤍";
-          likeBtn.innerHTML = `${heart} <span id=\"likeCount\">${likes[id]}</span>`;
-          commentCountEl.textContent = comments[id].length;
+          likedState[id] = likedState[id] || false;
+          likeBtn.innerHTML = `${
+            likedState[id] ? "❤️" : "🤍"
+          } <span id=\"likeCount\">${likes[id]}</span>`;
+          if (!comments[id] || comments[id].length === 0) {
+            // seed with preset comments
+            comments[id] = presetComments[id].slice();
+          }
+          document.getElementById("commentCount").textContent =
+            comments[id].length;
           modal.classList.remove("hidden");
-          lockScroll();
-        }
-        function closeModal() {
-          modal.classList.add("hidden");
-          if (commentDialog.classList.contains("hidden")) unlockScroll();
-        }
-        function closeComments() {
-          commentDialog.classList.add("hidden");
-          if (modal.classList.contains("hidden")) unlockScroll();
+          document.body.classList.add("overflow-hidden");
         }
 
         likeBtn.onclick = () => {
-          const id = current.id;
-          if (!likedState[id]) {
-            likes[id]++;
-            likedState[id] = true;
+          if (!likedState[current]) {
+            likes[current]++;
+            likedState[current] = true;
           } else {
-            likes[id]--;
-            likedState[id] = false;
+            likes[current]--;
+            likedState[current] = false;
           }
-          const heart = likedState[id] ? "❤️" : "🤍";
-          likeBtn.innerHTML = `${heart} <span id=\"likeCount\">${likes[id]}</span>`;
-        };
-
-        shareBtn.onclick = () => {
-          alert("Link copied to clipboard! (Pretend this works lol)")
+          likeBtn.innerHTML = `${
+            likedState[current] ? "❤️" : "🤍"
+          } <span id=\"likeCount\">${likes[current]}</span>`;
         };
 
         commentBtn.onclick = () => {
           renderComments();
           commentDialog.classList.remove("hidden");
-          lockScroll();
+          document.body.classList.add("overflow-hidden");
         };
         function renderComments() {
-          const arr = comments[current.id];
+          const arr = comments[current];
           commentList.innerHTML = arr.length
             ? ""
             : '<p class="text-gray-500">No comments yet.</p>';
           arr.forEach((c) => {
             const p = document.createElement("p");
-            p.textContent = `• ${c}`;
+            p.textContent = `Anonymous: ${c}`;
             commentList.appendChild(p);
           });
         }
-        postCommentBtn.onclick = () => {
+        postComment.onclick = () => {
           const txt = commentText.value.trim();
           if (!txt) return;
-          comments[current.id].push(txt);
+          comments[current].push(txt);
           commentText.value = "";
           renderComments();
-          commentCountEl.textContent = comments[current.id].length;
+          document.getElementById("commentCount").textContent =
+            comments[current].length;
         };
 
-        closeModalBtn.onclick = closeModal;
-        closeCommentBtn.onclick = closeComments;
-        window.onkeydown = (e) => {
-          if (e.key === "Escape") {
-            closeModal();
-            closeComments();
-          }
+        infoBtn.onclick = () => {
+          contextTitle.textContent = "Context & Impact";
+          contextText.innerHTML = contexts[current];
+          contextDialog.classList.remove("hidden");
+          document.body.classList.add("overflow-hidden");
         };
 
-        modal.addEventListener("click", (e) => {
-          if (e.target === modal) closeModal();
-        });
-        commentDialog.addEventListener("click", (e) => {
-          if (e.target === commentDialog) closeComments();
-        });
+        shareBtn.onclick = () =>
+          alert("Link copied to clipboard! (Pretend this works lol)");
+
+        [closeModal, closeComment, closeContext].forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              modal.classList.add("hidden");
+              commentDialog.classList.add("hidden");
+              contextDialog.classList.add("hidden");
+              document.body.classList.remove("overflow-hidden");
+            })
+        );
+
+        // Leaflet map init
+        const map = L.map("map").setView([41, -95], 4);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+        const stops = [
+          {
+            title: "Jesse Washington • Waco, TX",
+            coords: [31.558333, -97.129722],
+          },
+          {
+            title: "Duluth Lynchings • Duluth, MN",
+            coords: [46.7893, -92.0968],
+          },
+          {
+            title: "Shipp & Smith • Marion, IN",
+            coords: [40.549722, -85.660278],
+          },
+          { title: "Leo Frank • Marietta, GA", coords: [33.9526, -84.5499] },
+        ];
+        stops.forEach((stop) =>
+          L.marker(stop.coords)
+            .addTo(map)
+            .bindPopup(`<strong>${stop.title}</strong>`)
+        );
       </script>
     </div>
-    <script>
-      // 1) Create the map centered on the U.S.
-      const map = L.map("map").setView([41, -95], 4);
-
-      // 2) Add an OpenStreetMap tile layer
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
-
-      // 3) Define your four lynching sites with coordinates
-      const stops = [
-        {
-          title: "Jesse Washington • Waco, TX",
-          coords: [31.558333, -97.129722],
-        },
-        {
-          title: "Duluth Lynchings • Duluth, MN",
-          coords: [46.7893, -92.0968],
-        },
-        {
-          title: "Shipp & Smith • Marion, IN",
-          coords: [40.549722, -85.660278],
-        },
-        {
-          title: "Leo Frank • Marietta, GA",
-          coords: [33.9526, -84.5499],
-        },
-      ];
-
-      // 4) Loop and drop a marker for each
-      stops.forEach((stop) => {
-        L.marker(stop.coords)
-          .addTo(map)
-          .bindPopup(`<strong>${stop.title}</strong>`);
-      });
-    </script>
   </body>
 </html>

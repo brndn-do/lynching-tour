@@ -23,13 +23,10 @@
         2. Consider Leo Frank’s story and the cases from Minnesota and Indiana. How did these different examples expand your understanding of who was targeted by mob violence?
       </p>
       <p class="font-semibold">
-        3. When you saw the final image of Thomas Shipp and Abram Smith, how did its placement as a climax influence your thoughts before reaching this page?
+        3. In what ways might clicking a “like” or “share” button on these images flatten the reality of violence? Could removing popularity metrics change how you respond?
       </p>
       <p class="font-semibold">
-        4. In what ways might clicking a “like” or “share” button on these images flatten the reality of violence? Could removing popularity metrics change how you respond?
-      </p>
-      <p class="font-semibold">
-        5. What questions do you still have about how technology shapes our memory of racial terror? Note any ideas for how digital tools could support deeper reflection.
+        4. What questions do you still have about how technology shapes our memory of racial terror?
       </p>
     </div>
 
@@ -38,7 +35,7 @@
         Restart Tour
       </button>
       <button id="clearBtn" class="inline-block bg-red-600 text-white px-6 py-2 rounded hover:bg-red-500">
-        Clear Responses
+        Clear Local Data
       </button>
     </div>
 
@@ -49,11 +46,11 @@
       document.getElementById("clearBtn").addEventListener("click", () => {
         if (
           confirm(
-            "This will delete all saved responses. Continue?"
+            "This will delete all local likes and comments. Continue?"
           )
         ) {
           localStorage.clear();
-          alert("Your responses have been cleared.");
+          alert("Local data has been cleared.");
         }
       });
     </script>
