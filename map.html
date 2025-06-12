@@ -219,7 +219,7 @@
         const presetComments = {
           marietta1915: [
             "LOL justice at last",
-            "TBH the crowd was p quiet, eerie vibes."
+            "TBH the crowd was p quiet, eerie vibes.",
           ],
           waco1916: [
             "yo that was savage—crowd was hype",
@@ -237,7 +237,7 @@
             "Watching them two swing was dark, ngl.",
             "one dude survived right? too bad",
             "wild stuff",
-            "that was satisfying"
+            "that was satisfying",
           ],
         };
 
@@ -364,24 +364,60 @@
         }).addTo(map);
         const stops = [
           {
+            id: "marietta1915",
+            title: "Leo Frank • Marietta, GA",
+            coords: [33.9526, -84.5499],
+          },
+          {
+            id: "waco1916",
             title: "Jesse Washington • Waco, TX",
             coords: [31.558333, -97.129722],
           },
           {
+            id: "duluth1920",
             title: "Duluth Lynchings • Duluth, MN",
             coords: [46.7893, -92.0968],
           },
           {
+            id: "marion1930",
             title: "Shipp & Smith • Marion, IN",
             coords: [40.549722, -85.660278],
           },
-          { title: "Leo Frank • Marietta, GA", coords: [33.9526, -84.5499] },
         ];
-        stops.forEach((stop) =>
-          L.marker(stop.coords)
+        let leoMarker;
+
+        stops.forEach((stop) => {
+          const marker = L.marker(stop.coords)
             .addTo(map)
-            .bindPopup(`<strong>${stop.title}</strong>`)
-        );
+            .bindPopup(`<strong>${stop.title}</strong>`);
+
+          if (stop.id === "marietta1915") {
+            leoMarker = marker;
+          }
+        });
+
+        // Define the route as an ordered list of [lat, lng] pairs
+        const routeCoords = [
+          [33.9526, -84.5499], // Leo Frank • Marietta, GA
+          [31.558333, -97.129722], // Jesse Washington • Waco, TX
+          [46.7893, -92.0968], // Duluth Lynchings • Duluth, MN
+          [40.549722, -85.660278], // Shipp & Smith • Marion, IN
+        ];
+
+        // Add the route polyline to the map
+        L.polyline(routeCoords, {
+          weight: 4,
+          opacity: 0.7,
+          // you can set a color or leave default
+          color: "red",
+          dashArray: "8 6", // optional: dashed line
+        }).addTo(map);
+
+        // Zoom the map so the whole route is visible
+        map.fitBounds(routeCoords);
+
+        // Once the map is ready, open Leo Frank’s popup automatically
+        leoMarker.openPopup();
       </script>
     </div>
   </body>
